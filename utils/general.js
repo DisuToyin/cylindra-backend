@@ -3,7 +3,7 @@ async function send_slack_message(url, message) {
   try {
     const response = await axios.post(url, { text: message });
     console.log("Slack message sent successfully");
-    console.log("Response:", response.data);
+    return response;
   } catch (error) {
     console.error("Error sending Slack message:", error);
   }

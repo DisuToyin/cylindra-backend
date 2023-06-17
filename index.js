@@ -78,29 +78,27 @@ consumeFromQueue("website-checks", async (message) => {
   try {
     let sites = JSON.parse(message);
     for (site of sites) {
+      //get site status
       const site_stat = await web_services.check_site_status(site.link);
-      //record this in the db
 
+      //record this in the db
       const payload = {
         web_id: site._id,
         event_type: site_stat,
         response_time: 0,
       };
-
-      const event_created = await event_services.create_event(payload);
-      console.log("***************");
-      console.log(event_created);
-      console.log("***************");
+      console.log(site._id);
+      // await event_services.create_event(payload); commenting out for now
 
       //send slack notification if site is down
-      const webhook = site.slack || process.env.default_slack_webhook;
-      const message = `${site.name}(${site.link}) is ${site_stat}`;
+      if (site_stat !== "up") {
+        const user = await user_services.find_user_by_id(site.user_id);
+        const slack_url = user?.slack;
+        const webhook = slack_url;
+        const message = `${site.name}(${site.link}) is ${site_stat}`;
 
-      console.log(message);
-
-      await general.send_slack_message(webhook, message);
-
-      //send email if site is down
+        webhook && (await general.send_slack_message(webhook, message));
+      }
 
       console.log(site.link);
     }

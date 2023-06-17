@@ -47,15 +47,14 @@ const edit_user = async (user_id, update) => {
     new: true,
   });
 
-  await UserBioDataModel.findOneAndUpdate({ user_id }, update_obj, {
-    runValidators: true,
-    context: "query",
-    new: true,
-  });
-
   const updated_user = await find_user_by_id(user_id);
 
   return updated_user;
+};
+
+const check_user_access = async (user, user_id) => {
+  if (user.id !== user_id) return false;
+  else return true;
 };
 
 module.exports = {
@@ -64,4 +63,5 @@ module.exports = {
   edit_user,
   find_user_by_email,
   find_user_by_id,
+  check_user_access,
 };

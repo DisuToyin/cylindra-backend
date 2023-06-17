@@ -8,7 +8,7 @@ const create_website = async (payload, user) => {
     link,
     user_id: user.id,
     interval,
-    slack: user.slack || "",
+    slack: "",
   });
 
   return web;

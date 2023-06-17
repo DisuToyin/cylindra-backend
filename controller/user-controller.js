@@ -3,7 +3,13 @@ const user_services = require("../services/user-services");
 const bcrypt = require("bcryptjs");
 
 const { success_response, error_response } = response;
-const { create_new_user, find_user_by_email, find_user_by_id } = user_services;
+const {
+  create_new_user,
+  find_user_by_email,
+  find_user_by_id,
+  edit_user,
+  check_user_access,
+} = user_services;
 
 exports.register = async (req, res) => {
   try {
@@ -37,5 +43,25 @@ exports.login = async (req, res) => {
   } catch (err) {
     console.log(err);
     return error_response(res, "Internal Server Error", 500);
+  }
+};
+
+exports.update_user = async (req, res) => {
+  try {
+    const user_id = req.params.user_id;
+    const check = await check_user_access(req.user, user_id);
+    if (!check)
+      return error_response(
+        res,
+        "Unauthorised, You cannot edit someone elses record",
+        400
+      );
+
+    const update = req.body;
+
+    const edited_user = await edit_user(user_id, update);
+    return success_response(res, 200, edited_user);
+  } catch (err) {
+    console.log(err);
   }
 };
