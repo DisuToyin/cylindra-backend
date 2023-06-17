@@ -93,9 +93,7 @@ consumeFromQueue("website-checks", async (message) => {
       console.log("***************");
 
       //send slack notification if site is down
-      const webhook =
-        site.slack ||
-        "https://hooks.slack.com/services/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";
+      const webhook = site.slack || process.env.default_slack_webhook;
       const message = `${site.name}(${site.link}) is ${site_stat}`;
 
       console.log(message);
