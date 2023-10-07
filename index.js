@@ -6,10 +6,13 @@ const https = require("https");
 const connectDB = require("./db/db");
 const amqp = require("amqplib");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 
 const general = require("./utils/general");
 
 app.use(cors());
+// Use the cookie-parser middleware
+app.use(cookieParser());
 
 dotenv.config();
 connectDB();

@@ -19,10 +19,10 @@ exports.register = async (req, res) => {
     const refresh_token = new_user.refreshToken();
 
     const response = { token, refresh_token, user: new_user };
-    res.cookie("jwt", refresh_token, {
+    res.cookie("refresh_token", refresh_token, {
       httpOnly: true, //httpOnly: true: This flag indicates that the cookie can only be accessed by the server and not by JavaScript running in the browser. This is a security measure to protect the token from being accessed by malicious scripts.
       sameSite: "None", // This setting allows the cookie to be sent with cross-origin requests
-      secure: true, // This flag ensures that the cookie is only sent over HTTPS connections, enhancing security
+      secure: process.env.ENV === "dev" ? false : true, // This flag ensures that the cookie is only sent over HTTPS connections, enhancing security
       maxAge: 24 * 60 * 60 * 1000, // This sets the maximum age of the cookie to 24 hours, after which it will expire
     });
     success_response(res, 201, response);
@@ -46,10 +46,10 @@ exports.login = async (req, res) => {
       const token = signed_in_user.getSignedToken();
       const refresh_token = signed_in_user.refreshToken();
       const response = { token, refresh_token, user: signed_in_user };
-      res.cookie("jwt", refresh_token, {
+      res.cookie("refresh_token", refresh_token, {
         httpOnly: true, //httpOnly: true: This flag indicates that the cookie can only be accessed by the server and not by JavaScript running in the browser. This is a security measure to protect the token from being accessed by malicious scripts.
         sameSite: "None", // This setting allows the cookie to be sent with cross-origin requests
-        secure: true, // This flag ensures that the cookie is only sent over HTTPS connections, enhancing security
+        secure: process.env.ENV === "dev" ? false : true, // This flag ensures that the cookie is only sent over HTTPS connections, enhancing security
         maxAge: 24 * 60 * 60 * 1000, // This sets the maximum age of the cookie to 24 hours, after which it will expire
       });
       return success_response(res, 200, response);
@@ -85,8 +85,11 @@ exports.update_user = async (req, res) => {
 
 exports.generate_new_access_token = async (req, res) => {
   try {
-    const { refresh_token } = req.body;
+    const refresh_token = req.cookies?.refresh_token;
     console.log({ refresh_token });
+    if (!refresh_token) {
+      return error_response(res, "Invalid refresh token", 404);
+    }
 
     const decoded = jwt.verify(refresh_token, process.env.REFRESH_TOKEN_SECRET);
 
