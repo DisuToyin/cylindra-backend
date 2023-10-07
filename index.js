@@ -5,8 +5,11 @@ const morgan = require("morgan");
 const https = require("https");
 const connectDB = require("./db/db");
 const amqp = require("amqplib");
+const cors = require("cors");
 
 const general = require("./utils/general");
+
+app.use(cors());
 
 dotenv.config();
 connectDB();
@@ -87,8 +90,7 @@ consumeFromQueue("website-checks", async (message) => {
         event_type: site_stat,
         response_time: 0,
       };
-      console.log(site._id);
-      // await event_services.create_event(payload); commenting out for now
+      await event_services.create_event(payload);
 
       //send slack notification if site is down
       if (site_stat !== "up") {
@@ -112,9 +114,12 @@ const startPeriodicCheck = () => {
 
   setInterval(() => {
     periodic_check(); // Run the check every 10 minutes
-  }, 10 * 60 * 1000);
+  }, 20 * 60 * 1000);
 };
 
 startPeriodicCheck();
 
 app.listen(5000, () => console.log(`Server is running on 5000`));
+
+// spin rabbit mq
+// docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3.12-management
