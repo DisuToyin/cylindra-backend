@@ -9,8 +9,12 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 
 const general = require("./utils/general");
+const corsOptions = {
+  origin: "http://localhost:3000",
+  credentials: true,
+};
 
-app.use(cors());
+app.use(cors(corsOptions));
 // Use the cookie-parser middleware
 app.use(cookieParser());
 
@@ -19,6 +23,7 @@ connectDB();
 
 const user_route = require("./routes/user-routes");
 const web_route = require("./routes/web-routes");
+const dash_route = require("./routes/dash-routes");
 
 // const errorHandler = require("./middleware/error");
 
@@ -27,6 +32,7 @@ app.use(express.json());
 
 app.use("/api/user", user_route);
 app.use("/api/web", web_route);
+app.use("/api/dashboard", dash_route);
 
 const user_services = require("./services/user-services");
 const web_services = require("./services/web-services");

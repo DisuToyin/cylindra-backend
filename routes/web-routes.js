@@ -15,6 +15,7 @@ const { create_website, get_websites, get_website_events } = web_controller;
 router.post("/create", protectAPI, create_website);
 router.get("/", protectAPI, get_websites);
 router.get("/:web_id/events", protectAPI, get_website_events);
+
 // router.put("/edit", edit_website);
 // router.delete("/delete", delete_website);
 

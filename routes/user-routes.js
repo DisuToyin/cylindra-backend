@@ -15,7 +15,8 @@ const { user_register_rules, user_login_rules } = users_rules;
 
 router.post("/signup", register);
 router.post("/login", login);
-router.post("/refresh", generate_new_access_token);
+router.get("/refresh", generate_new_access_token);
+
 router.put("/:user_id/edit", protectAPI, update_user);
 
 module.exports = router;

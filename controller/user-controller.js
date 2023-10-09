@@ -18,11 +18,12 @@ exports.register = async (req, res) => {
     const token = new_user.getSignedToken();
     const refresh_token = new_user.refreshToken();
 
-    const response = { token, refresh_token, user: new_user };
+    const response = { token, user: new_user };
     res.cookie("refresh_token", refresh_token, {
       httpOnly: true, //httpOnly: true: This flag indicates that the cookie can only be accessed by the server and not by JavaScript running in the browser. This is a security measure to protect the token from being accessed by malicious scripts.
-      sameSite: "None", // This setting allows the cookie to be sent with cross-origin requests
-      secure: process.env.ENV === "dev" ? false : true, // This flag ensures that the cookie is only sent over HTTPS connections, enhancing security
+      // sameSite: "None", // This setting allows the cookie to be sent with cross-origin requests
+      // secure: false,
+      // secure: process.env.ENV === "dev" ? false : true, // This flag ensures that the cookie is only sent over HTTPS connections, enhancing security
       maxAge: 24 * 60 * 60 * 1000, // This sets the maximum age of the cookie to 24 hours, after which it will expire
     });
     success_response(res, 201, response);
@@ -45,38 +46,18 @@ exports.login = async (req, res) => {
       const signed_in_user = await find_user_by_id(user._id);
       const token = signed_in_user.getSignedToken();
       const refresh_token = signed_in_user.refreshToken();
-      const response = { token, refresh_token, user: signed_in_user };
+      const response = { token, user: signed_in_user };
       res.cookie("refresh_token", refresh_token, {
         httpOnly: true, //httpOnly: true: This flag indicates that the cookie can only be accessed by the server and not by JavaScript running in the browser. This is a security measure to protect the token from being accessed by malicious scripts.
-        sameSite: "None", // This setting allows the cookie to be sent with cross-origin requests
-        secure: process.env.ENV === "dev" ? false : true, // This flag ensures that the cookie is only sent over HTTPS connections, enhancing security
+        // sameSite: "None", // This setting allows the cookie to be sent with cross-origin requests
+        // secure: process.env.ENV === "dev" ? false : true, // This flag ensures that the cookie is only sent over HTTPS connections, enhancing security
         maxAge: 24 * 60 * 60 * 1000, // This sets the maximum age of the cookie to 24 hours, after which it will expire
+        // secure: false,
       });
       return success_response(res, 200, response);
     } else {
       return error_response(res, "Invalid credentials", 401);
     }
-  } catch (err) {
-    console.log(err);
-    return error_response(res, "Internal Server Error", 500);
-  }
-};
-
-exports.update_user = async (req, res) => {
-  try {
-    const user_id = req.params.user_id;
-    const check = await check_user_access(req.user, user_id);
-    if (!check)
-      return error_response(
-        res,
-        "Unauthorised, You cannot edit someone elses record",
-        400
-      );
-
-    const update = req.body;
-
-    const edited_user = await edit_user(user_id, update);
-    return success_response(res, 200, edited_user);
   } catch (err) {
     console.log(err);
     return error_response(res, "Internal Server Error", 500);
@@ -102,9 +83,38 @@ exports.generate_new_access_token = async (req, res) => {
       token,
     };
 
+    res.cookie("refresh_token", refresh_token, {
+      httpOnly: true, //httpOnly: true: This flag indicates that the cookie can only be accessed by the server and not by JavaScript running in the browser. This is a security measure to protect the token from being accessed by malicious scripts.
+      // sameSite: "None", // This setting allows the cookie to be sent with cross-origin requests
+      // secure: process.env.ENV === "dev" ? false : true, // This flag ensures that the cookie is only sent over HTTPS connections, enhancing security
+      maxAge: 24 * 60 * 60 * 1000, // This sets the maximum age of the cookie to 24 hours, after which it will expire
+      // secure: false,
+    });
+
     return success_response(res, 200, response);
   } catch (err) {
     console.log(err);
     return error_response(res, err, 500);
+  }
+};
+
+exports.update_user = async (req, res) => {
+  try {
+    const user_id = req.params.user_id;
+    const check = await check_user_access(req.user, user_id);
+    if (!check)
+      return error_response(
+        res,
+        "Unauthorised, You cannot edit someone elses record",
+        400
+      );
+
+    const update = req.body;
+
+    const edited_user = await edit_user(user_id, update);
+    return success_response(res, 200, edited_user);
+  } catch (err) {
+    console.log(err);
+    return error_response(res, "Internal Server Error", 500);
   }
 };

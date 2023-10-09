@@ -15,7 +15,7 @@ const create_website = async (payload, user) => {
 };
 
 const get_websites = async (user) => {
-  const websites = await WebModel.findOne({ user_id: user.id });
+  const websites = await WebModel.find({ user_id: user.id });
   return websites;
 };
 

@@ -29,8 +29,12 @@ const get_events_for_web_id = async (web_id) => {
   return events;
 };
 
-const get_all_events_user_id = async (payload) => {
-  return "event";
+const get_all_events_user_id = async (user_id) => {
+  const events = await EventModel.find({})
+    .populate({ path: "web_id" })
+    .sort({ createdAt: -1 }) // Sort events in descending order by createdAt (assuming you have a 'createdAt' field)
+    .limit(5); // Limit the result to the last 5 events
+  return events;
 };
 
 module.exports = {
