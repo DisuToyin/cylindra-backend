@@ -90,14 +90,19 @@ consumeFromQueue("website-checks", async (message) => {
   try {
     let sites = JSON.parse(message);
     for (site of sites) {
-      //get site status
+      const startTime = Date.now();
+
+      // Make a request to get the site status
       const site_stat = await web_services.check_site_status(site.link);
+
+      // Calculate the response time
+      const response_time = site_stat === "up" ? Date.now() - startTime : 0;
 
       //record this in the db
       const payload = {
         web_id: site._id,
         event_type: site_stat,
-        response_time: 0,
+        response_time: response_time / 1000,
       };
       await event_services.create_event(payload);
 
@@ -122,8 +127,8 @@ const startPeriodicCheck = () => {
   // periodic_check(); // Run the initial check immediately
 
   setInterval(() => {
-    periodic_check(); // Run the check every 10 minutes
-  }, 20 * 60 * 1000);
+    periodic_check();
+  }, 30 * 60 * 1000);
 };
 
 startPeriodicCheck();

@@ -8,7 +8,13 @@ const web_controller = require("../controller/web-controller.js");
 
 const router = express.Router();
 
-const { create_website, get_websites, get_website_events } = web_controller;
+const {
+  create_website,
+  get_websites,
+  get_website_events,
+  update_website,
+  delete_website,
+} = web_controller;
 
 // const { user_register_rules, user_login_rules } = users_rules;
 
@@ -16,7 +22,7 @@ router.post("/create", protectAPI, create_website);
 router.get("/", protectAPI, get_websites);
 router.get("/:web_id/events", protectAPI, get_website_events);
 
-// router.put("/edit", edit_website);
-// router.delete("/delete", delete_website);
+router.put("/edit", protectAPI, update_website);
+router.delete("/delete/:web_id", protectAPI, delete_website);
 
 module.exports = router;

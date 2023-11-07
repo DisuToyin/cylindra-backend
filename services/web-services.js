@@ -24,6 +24,36 @@ const get_all_websites = async () => {
   return websites;
 };
 
+const update_website = async (payload) => {
+  const update_obj = Object.keys(payload).reduce((acc, key) => {
+    const _acc = acc;
+    if (
+      payload[key] !== undefined &&
+      payload[key] !== null &&
+      payload[key] !== ""
+    ) {
+      _acc[key] = payload[key];
+    }
+    return _acc;
+  }, {});
+
+  const update = await WebModel.findOneAndUpdate(
+    { _id: payload?.web_id },
+    update_obj,
+    {
+      runValidators: true,
+      context: "query",
+      new: true,
+    }
+  );
+  return update;
+};
+
+const delete_website = async (web_id) => {
+  const deleted_web = await WebModel.deleteOne({ _id: web_id });
+  return deleted_web;
+};
+
 async function check_site_status(link) {
   let site_status = "up";
 
@@ -53,4 +83,6 @@ module.exports = {
   get_websites,
   check_site_status,
   get_all_websites,
+  update_website,
+  delete_website,
 };

@@ -23,17 +23,20 @@ const create_event = async (payload) => {
   return event;
 };
 
-const get_events_for_web_id = async (web_id) => {
-  const events = await EventModel.find({ web_id }).populate({ path: "web_id" });
+const get_events_for_web_id = async (web_id, limit = 10) => {
+  const events = await EventModel.find({ web_id })
+    .populate({ path: "web_id" })
+    .sort({ createdAt: -1 })
+    .limit(limit);
 
   return events;
 };
 
-const get_all_events_user_id = async (user_id) => {
+const get_all_events_user_id = async (user_id, limit = 5) => {
   const events = await EventModel.find({})
     .populate({ path: "web_id" })
     .sort({ createdAt: -1 }) // Sort events in descending order by createdAt (assuming you have a 'createdAt' field)
-    .limit(5); // Limit the result to the last 5 events
+    .limit(limit); // Limit the result to the last 5 events
   return events;
 };
 

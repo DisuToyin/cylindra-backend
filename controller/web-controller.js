@@ -26,6 +26,53 @@ exports.get_websites = async (req, res) => {
   }
 };
 
+exports.update_website = async (req, res) => {
+  try {
+    const update = req.body;
+
+    if (!update?.web_id) {
+      return error_response(res, "WEB ID is missing", 422);
+    }
+    const user_id = req.user?.id;
+    console.log({ user_id });
+    const check = await check_if_user_has_access(req.user, update?.web_id);
+    if (!check)
+      return error_response(
+        res,
+        "Unauthorised, You cannot edit someone elses record",
+        400
+      );
+
+    const edited_website = web_services.update_website(update);
+
+    return success_response(res, 200, edited_website);
+  } catch (err) {
+    console.log(err);
+    return error_response(res, "Server Error", 500);
+  }
+};
+
+exports.delete_website = async (req, res) => {
+  try {
+    const body = req.params;
+    const check = await check_if_user_has_access(req.user, body?.web_id);
+    if (!check)
+      return error_response(
+        res,
+        "Unauthorised, You cannot delete someone elses record",
+        400
+      );
+    await web_services.delete_website(body?.web_id);
+    const response = {
+      message: "Deleted successfully",
+    };
+    return success_response(res, 204, response);
+  } catch (err) {
+    console.log(err);
+    error_response(res, "Internal Server Error", 500, err);
+  }
+};
+
 exports.get_website_events = async (req, res) => {
   try {
     const webid = req.params.web_id;
